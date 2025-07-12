@@ -7,7 +7,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: 项目构建
-        run: docker build -t my-image .
+        run: docker build -t auction_system .
       - name: 登录dockerhub
         uses: docker/login-action@v3
         with:
@@ -17,4 +17,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/my-image:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/auction_system:latest
