@@ -1,0 +1,16 @@
+# 必须忽略的文件
+.env
+.env.local
+*.secret
+credentials/*
+
+# 开发/构建过程文件
+.git/
+.idea/
+.vscode/
+tmp/
+bin/
+
+# 测试相关
+coverage.out
+*.test
