@@ -11,20 +11,16 @@ import (
 
 func NewSignupRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, group *gin.RouterGroup) {
 	group.POST("/signup", func(ctx *gin.Context) {
-		var signupSchema auth.SignupSchema
+		var signupSchema auth.SignupRequestSchema
 
 		if err := ctx.ShouldBindJSON(&signupSchema); err != nil {
-			ctx.JSON(400, gin.H{
-				"message": "invalid signup schema",
-			})
+			ctx.Error(err)
 			return
 		}
 
 		response, err := user.Signup(db.Db, &signupSchema)
 		if err != nil {
-			ctx.JSON(400, gin.H{
-				"message": "invalid signup schema",
-			})
+			ctx.Error(err)
 			return
 		}
 

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sync"
 
-	"auctionsystem/internal/user"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -30,18 +28,7 @@ func NewDb(cfg *Env) (*DB, error) {
 		if err != nil {
 			return
 		}
-
-		autoMigrate(db)
 	})
 
 	return &DB{Db: db}, err
-}
-
-func autoMigrate(db *gorm.DB) error {
-	err := db.AutoMigrate(&user.User{})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

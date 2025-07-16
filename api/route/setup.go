@@ -8,10 +8,12 @@ import (
 )
 
 func Setup(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, rootRoute *gin.Engine) {
-	publicRoute := rootRoute.Group("")
-	NewSignupRoute(env, timeout, db, publicRoute)
-	NewLoginRoute(env, timeout, db, publicRoute)
-	NewRefreshTokenRoute(env, timeout, db, publicRoute)
+	// publicRoute := rootRoute.Group("")
+
+	authRoute := rootRoute.Group("/auth")
+	NewSignupRoute(env, timeout, db, authRoute)
+	NewLoginRoute(env, timeout, db, authRoute)
+	NewRefreshTokenRoute(env, timeout, db, authRoute)
 
 	api := rootRoute.Group("/api")
 

@@ -8,14 +8,14 @@ func CreateUser(db *gorm.DB, user *User) error {
 	return db.Create(user).Error
 }
 
-func GetUser(db *gorm.DB, id int) (*User, error) {
-	var user User
-	err := db.First(&user, id).Error
+func GetUser(db *gorm.DB, user *User) (*User, error) {
+	var result User
+	err := db.Where(user).First(&result).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return &result, nil
 }
 
 func UpdateUser(db *gorm.DB, user *User) error {

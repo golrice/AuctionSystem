@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type SignupSchema struct {
+type SignupRequestSchema struct {
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -14,7 +14,7 @@ type SignupResponseSchema struct {
 	common.ResponseSchema
 }
 
-type LoginSchema struct {
+type LoginRequestSchema struct {
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -37,6 +37,15 @@ type FullTokenSchema struct {
 }
 
 type LoginResponseSchema struct {
+	common.ResponseSchema
+	FullTokenSchema
+}
+
+type RefreshTokenRequestSchema struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+type RefreshTokenResponseSchema struct {
 	common.ResponseSchema
 	FullTokenSchema
 }

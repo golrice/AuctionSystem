@@ -11,21 +11,16 @@ import (
 
 func NewLoginRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, group *gin.RouterGroup) {
 	group.POST("/login", func(ctx *gin.Context) {
-		// 获取 login 参数, 类型为 LoginSchema
-		var loginSchema auth.LoginSchema
+		var loginSchema auth.LoginRequestSchema
 
 		if err := ctx.ShouldBindJSON(&loginSchema); err != nil {
-			ctx.JSON(400, gin.H{
-				"message": "invalid login schema",
-			})
+			ctx.Error(err)
 			return
 		}
 
-		response, err := user.Login(db.Db, &loginSchema)
+		response, err := user.Login(db.Db, &loginSchema, env)
 		if err != nil {
-			ctx.JSON(400, gin.H{
-				"message": "invalid login schema",
-			})
+			ctx.Error(err)
 			return
 		}
 
