@@ -3,6 +3,7 @@ package auth
 import (
 	"auctionsystem/bootstrap"
 	"auctionsystem/internal/common"
+	"errors"
 	"fmt"
 	"time"
 
@@ -66,10 +67,13 @@ func GenerateToken(userId uint, accessExpireDelta time.Duration, refreshExpireDe
 	}
 }
 
-func RefreshToken(refreshToken string, env *bootstrap.Env) (*RefreshTokenResponseSchema, error) {
+func RefreshToken(refreshToken string, userId uint, env *bootstrap.Env) (*RefreshTokenResponseSchema, error) {
 	claims, err := ValidateToken(refreshToken, env.RefreshTokenSecret)
 	if err != nil {
 		return nil, err
+	}
+	if claims.UserId != userId {
+		return nil, errors.New("user id not match")
 	}
 
 	return &RefreshTokenResponseSchema{

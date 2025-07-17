@@ -22,6 +22,6 @@ func UpdateUser(db *gorm.DB, user *User) error {
 	return db.Model(&User{}).Updates(user).Error
 }
 
-func DeleteUser(db *gorm.DB, id int) error {
-	return db.Delete(&User{}, id).Error
+func DeleteUser(db *gorm.DB, user *User) error {
+	return db.Delete(&User{}, user).Error
 }

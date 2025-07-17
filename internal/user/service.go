@@ -19,7 +19,7 @@ func Login(db *gorm.DB, loginSchema *auth.LoginRequestSchema, env *bootstrap.Env
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginSchema.Password))
 	if err != nil {
-		return nil, err
+		return nil, errors.New("password incorrect")
 	}
 
 	token := auth.GenerateToken(user.ID, time.Hour*24, time.Hour*24*7, env.AccessTokenSecret, env.RefreshTokenSecret)
@@ -47,7 +47,7 @@ func Signup(db *gorm.DB, signupSchema *auth.SignupRequestSchema) (*auth.SignupRe
 		Name:     signupSchema.Name,
 		Password: string(encryptPassword),
 	}); err != nil {
-		return nil, err
+		return nil, errors.New("create user failed")
 	}
 
 	return &auth.SignupResponseSchema{

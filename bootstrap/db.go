@@ -32,3 +32,7 @@ func NewDb(cfg *Env) (*DB, error) {
 
 	return &DB{Db: db}, err
 }
+
+func AutoMigrate(db *DB, models ...interface{}) {
+	db.Db.AutoMigrate(models...)
+}

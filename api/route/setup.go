@@ -9,9 +9,9 @@ import (
 )
 
 func Setup(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, rootRoute *gin.Engine) {
+	rootRoute.Use(middleware.ErrorHandleMiddleware())
 	rootRoute.Use(gin.Logger())
 	rootRoute.Use(middleware.CORSMiddleware())
-	rootRoute.Use(middleware.ErrorHandleMiddle())
 
 	publicRoute := rootRoute.Group("/")
 	NewSignupRoute(env, timeout, db, publicRoute)
