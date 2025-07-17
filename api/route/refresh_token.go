@@ -17,7 +17,7 @@ func NewRefreshTokenRoute(env *bootstrap.Env, timeout time.Duration, db *bootstr
 			return
 		}
 
-		token, err := auth.RefreshToken(refreshTokenSchema.RefreshToken, env.RefreshTokenSecret)
+		token, err := auth.RefreshToken(refreshTokenSchema.RefreshToken, env)
 		if err != nil {
 			ctx.Error(err)
 			return
