@@ -9,7 +9,7 @@ const (
 	AuctionStatusEnded   AuctionStatus = 2
 )
 
-type Auction struct {
+type AuctionModel struct {
 	gorm.Model
 	Title     string        `json:"title" gorm:"column:title"`
 	StartTime int64         `json:"start_time" gorm:"column:start_time"`
@@ -17,4 +17,12 @@ type Auction struct {
 	InitPrice int64         `json:"init_price" gorm:"column:init_price"`
 	Step      int64         `json:"step" gorm:"column:step"`
 	Status    AuctionStatus `json:"status" gorm:"column:status"`
+}
+
+func (AuctionModel) TableName() string {
+	return "auctions"
+}
+
+func AutoMigrate(db *gorm.DB) {
+	db.AutoMigrate(&AuctionModel{})
 }

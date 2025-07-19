@@ -18,7 +18,7 @@ func NewRefreshTokenRoute(env *bootstrap.Env, timeout time.Duration, db *bootstr
 		}
 
 		userId := ctx.GetUint("user_id")
-		token, err := auth.RefreshToken(refreshTokenSchema.RefreshToken, userId, env)
+		token, err := auth.RefreshToken(userId, env.AccessTokenSecret, refreshTokenSchema.RefreshToken, env.RefreshTokenSecret, env.AccessTokenExpiryHour, env.RefreshTokenExpiryHour)
 		if err != nil {
 			ctx.Error(err)
 			return

@@ -1,28 +1,39 @@
 package user
 
 import (
-	"auctionsystem/bootstrap"
 	"auctionsystem/internal/auth"
 	"auctionsystem/internal/common"
+	"context"
 	"errors"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
-func Login(db *gorm.DB, loginSchema *auth.LoginRequestSchema, env *bootstrap.Env) (*auth.LoginResponseSchema, error) {
-	user, err := GetUser(db, &User{Name: loginSchema.Name})
+type userService struct {
+	repo           UserRepository
+	contextTimeout time.Duration
+}
+
+func NewUserService(repo UserRepository, contextTimeout time.Duration) UserService {
+	return &userService{repo: repo, contextTimeout: contextTimeout}
+}
+
+func (s *userService) Login(loginSchema *auth.LoginRequestSchema, accessTokenSecret string, refreshTokenSecret string) (*auth.LoginResponseSchema, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
+	defer cancel()
+
+	model, err := s.repo.Get(ctx, &UserModel{Name: loginSchema.Name})
 	if err != nil {
 		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginSchema.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(model.Password), []byte(loginSchema.Password))
 	if err != nil {
 		return nil, errors.New("password incorrect")
 	}
 
-	token := auth.GenerateToken(user.ID, time.Hour*24, time.Hour*24*7, env.AccessTokenSecret, env.RefreshTokenSecret)
+	token := auth.GenerateToken(model.ID, time.Hour*24, time.Hour*24*7, accessTokenSecret, refreshTokenSecret)
 	return &auth.LoginResponseSchema{
 		ResponseSchema: common.ResponseSchema{
 			Code: 0,
@@ -32,9 +43,12 @@ func Login(db *gorm.DB, loginSchema *auth.LoginRequestSchema, env *bootstrap.Env
 	}, nil
 }
 
-func Signup(db *gorm.DB, signupSchema *auth.SignupRequestSchema) (*auth.SignupResponseSchema, error) {
+func (s *userService) Signup(signupSchema *auth.SignupRequestSchema) (*auth.SignupResponseSchema, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
+	defer cancel()
+
 	// 检查是否存在过user
-	if _, err := GetUser(db, &User{Name: signupSchema.Name}); err == nil {
+	if _, err := s.repo.Get(ctx, &UserModel{Name: signupSchema.Name}); err == nil {
 		return nil, errors.New("user already exists")
 	}
 
@@ -43,7 +57,7 @@ func Signup(db *gorm.DB, signupSchema *auth.SignupRequestSchema) (*auth.SignupRe
 		return nil, err
 	}
 
-	if err = CreateUser(db, &User{
+	if err = s.repo.Create(ctx, &UserModel{
 		Name:     signupSchema.Name,
 		Password: string(encryptPassword),
 	}); err != nil {

@@ -1,6 +1,9 @@
 package bootstrap
 
 import (
+	"auctionsystem/internal/auction"
+	"auctionsystem/internal/bid"
+	"auctionsystem/internal/user"
 	"fmt"
 	"sync"
 
@@ -28,6 +31,10 @@ func NewDb(cfg *Env) (*DB, error) {
 		if err != nil {
 			return
 		}
+
+		user.AutoMigrate(db)
+		auction.AutoMigrate(db)
+		bid.AutoMigrate(db)
 	})
 
 	return &DB{Db: db}, err

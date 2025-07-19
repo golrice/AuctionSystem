@@ -10,6 +10,8 @@ import (
 )
 
 func NewSignupRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, group *gin.RouterGroup) {
+	userService := user.NewUserService(user.NewUserRepository(db.Db), timeout)
+
 	group.POST("/signup", func(ctx *gin.Context) {
 		var signupSchema auth.SignupRequestSchema
 
@@ -18,7 +20,7 @@ func NewSignupRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB,
 			return
 		}
 
-		response, err := user.Signup(db.Db, &signupSchema)
+		response, err := userService.Signup(&signupSchema)
 		if err != nil {
 			ctx.Error(err)
 			return

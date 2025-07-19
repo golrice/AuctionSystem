@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"auctionsystem/bootstrap"
 	"auctionsystem/internal/common"
 	"errors"
 	"fmt"
@@ -67,8 +66,8 @@ func GenerateToken(userId uint, accessExpireDelta time.Duration, refreshExpireDe
 	}
 }
 
-func RefreshToken(refreshToken string, userId uint, env *bootstrap.Env) (*RefreshTokenResponseSchema, error) {
-	claims, err := ValidateToken(refreshToken, env.RefreshTokenSecret)
+func RefreshToken(userId uint, accessTokenSecret string, refreshToken string, refreshTokenSecret string, accessTokenExpiryHour int, refreshTokenExpiryHour int) (*RefreshTokenResponseSchema, error) {
+	claims, err := ValidateToken(refreshToken, refreshTokenSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +76,7 @@ func RefreshToken(refreshToken string, userId uint, env *bootstrap.Env) (*Refres
 	}
 
 	return &RefreshTokenResponseSchema{
-		FullTokenSchema: *GenerateToken(claims.UserId, time.Duration(env.AccessTokenExpiryHour), time.Duration(env.RefreshTokenExpiryHour), env.AccessTokenSecret, env.RefreshTokenSecret),
+		FullTokenSchema: *GenerateToken(claims.UserId, time.Duration(accessTokenExpiryHour), time.Duration(refreshTokenExpiryHour), accessTokenSecret, refreshTokenSecret),
 		ResponseSchema: common.ResponseSchema{
 			Code: 0,
 			Msg:  "success",
