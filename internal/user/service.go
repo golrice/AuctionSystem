@@ -1,70 +1,59 @@
 package user
 
 import (
-	"auctionsystem/internal/auth"
 	"auctionsystem/internal/common"
 	"context"
-	"errors"
-	"time"
 
-	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
-type userService struct {
-	repo           UserRepository
-	contextTimeout time.Duration
-}
-
-func NewUserService(repo UserRepository, contextTimeout time.Duration) UserService {
-	return &userService{repo: repo, contextTimeout: contextTimeout}
-}
-
-func (s *userService) Login(loginSchema *auth.LoginRequestSchema, accessTokenSecret string, refreshTokenSecret string) (*auth.LoginResponseSchema, error) {
+func (s *Service) Get(request GetRequestSchema) (*GetResponseSchema, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
 	defer cancel()
 
-	model, err := s.repo.Get(ctx, &UserModel{Name: loginSchema.Name})
+	response, err := s.repo.Get(ctx, &Model{Model: gorm.Model{ID: request.ID}})
 	if err != nil {
 		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(model.Password), []byte(loginSchema.Password))
-	if err != nil {
-		return nil, errors.New("password incorrect")
-	}
-
-	token := auth.GenerateToken(model.ID, time.Hour*24, time.Hour*24*7, accessTokenSecret, refreshTokenSecret)
-	return &auth.LoginResponseSchema{
+	return &GetResponseSchema{
 		ResponseSchema: common.ResponseSchema{
 			Code: 0,
 			Msg:  "success",
 		},
-		FullTokenSchema: *token,
+		CreatedAt: response.CreatedAt,
+
+		Name:    response.Name,
+		Email:   response.Email,
+		Balance: response.Balance,
 	}, nil
 }
 
-func (s *userService) Signup(signupSchema *auth.SignupRequestSchema) (*auth.SignupResponseSchema, error) {
+func (s *Service) Update(request UpdateRequestSchema) (*UpdateResponseSchema, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
 	defer cancel()
 
-	// 检查是否存在过user
-	if _, err := s.repo.Get(ctx, &UserModel{Name: signupSchema.Name}); err == nil {
-		return nil, errors.New("user already exists")
-	}
-
-	encryptPassword, err := bcrypt.GenerateFromPassword([]byte(signupSchema.Password), bcrypt.DefaultCost)
-	if err != nil {
+	if err := s.repo.Update(ctx, &Model{Model: gorm.Model{ID: request.ID}}); err != nil {
 		return nil, err
 	}
 
-	if err = s.repo.Create(ctx, &UserModel{
-		Name:     signupSchema.Name,
-		Password: string(encryptPassword),
-	}); err != nil {
-		return nil, errors.New("create user failed")
+	return &UpdateResponseSchema{
+		ResponseSchema: common.ResponseSchema{
+			Code: 0,
+			Msg:  "success",
+		},
+	}, nil
+}
+
+func (s *Service) Delete(request DeleteRequestSchema) (*DeleteResponseSchema, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
+	defer cancel()
+
+	if err := s.repo.Delete(ctx, &Model{Model: gorm.Model{ID: request.ID}}); err != nil {
+		return nil, err
 	}
 
-	return &auth.SignupResponseSchema{
+	return &DeleteResponseSchema{
 		ResponseSchema: common.ResponseSchema{
 			Code: 0,
 			Msg:  "success",

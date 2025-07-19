@@ -10,7 +10,7 @@ import (
 )
 
 func NewLoginRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, group *gin.RouterGroup) {
-	userService := user.NewUserService(user.NewUserRepository(db.Db), timeout)
+	authService := auth.NewAuthService(user.NewUserRepository(db.Db), timeout)
 
 	group.POST("/login", func(ctx *gin.Context) {
 		var loginSchema auth.LoginRequestSchema
@@ -20,7 +20,7 @@ func NewLoginRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, 
 			return
 		}
 
-		response, err := userService.Login(&loginSchema, env.AccessTokenSecret, env.RefreshTokenSecret)
+		response, err := authService.Login(&loginSchema, env.AccessTokenSecret, env.RefreshTokenSecret)
 		if err != nil {
 			ctx.Error(err)
 			return

@@ -5,10 +5,6 @@ import "gorm.io/gorm"
 type bidRepository struct {
 }
 
-type BidRepository interface {
-	Create(db *gorm.DB, model *BidModel) error
-}
-
 func NewBidRepository() BidRepository {
 	return &bidRepository{}
 }

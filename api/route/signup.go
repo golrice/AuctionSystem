@@ -4,23 +4,24 @@ import (
 	"auctionsystem/bootstrap"
 	"auctionsystem/internal/auth"
 	"auctionsystem/internal/user"
+	"errors"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func NewSignupRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, group *gin.RouterGroup) {
-	userService := user.NewUserService(user.NewUserRepository(db.Db), timeout)
+	authService := auth.NewAuthService(user.NewUserRepository(db.Db), timeout)
 
 	group.POST("/signup", func(ctx *gin.Context) {
 		var signupSchema auth.SignupRequestSchema
 
 		if err := ctx.ShouldBindJSON(&signupSchema); err != nil {
-			ctx.Error(err)
+			ctx.Error(errors.New("invalid request"))
 			return
 		}
 
-		response, err := userService.Signup(&signupSchema)
+		response, err := authService.Signup(&signupSchema)
 		if err != nil {
 			ctx.Error(err)
 			return
