@@ -4,15 +4,18 @@ import (
 	"auctionsystem/internal/auction"
 	"auctionsystem/internal/bid"
 	"auctionsystem/internal/user"
+	"context"
 	"fmt"
 	"sync"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 type DB struct {
-	Db *gorm.DB
+	Db    *gorm.DB
+	Redis *redis.Client
 }
 
 var (
@@ -22,6 +25,7 @@ var (
 func NewDb(cfg *Env) (*DB, error) {
 	var err error
 	var db *gorm.DB
+	var redisClient *redis.Client
 
 	dbOnce.Do(func() {
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -35,9 +39,19 @@ func NewDb(cfg *Env) (*DB, error) {
 		user.AutoMigrate(db)
 		auction.AutoMigrate(db)
 		bid.AutoMigrate(db)
+
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
+			Password: cfg.RedisPass,
+			DB:       cfg.RedisDatabase,
+		})
+		_, err = redisClient.Ping(context.Background()).Result()
+		if err != nil {
+			return
+		}
 	})
 
-	return &DB{Db: db}, err
+	return &DB{Db: db, Redis: redisClient}, err
 }
 
 func AutoMigrate(db *DB, models ...interface{}) {

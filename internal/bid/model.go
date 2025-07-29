@@ -7,20 +7,25 @@ type BidStatus int
 const (
 	BidStatusRunning BidStatus = 1
 	BidStatusEnded   BidStatus = 2
+	BidStatusSuccess BidStatus = 3
 )
 
-type BidModel struct {
+type Model struct {
 	gorm.Model
-	AuctionID int64     `json:"auction_id" gorm:"column:auction_id"`
-	UserID    int64     `json:"user_id" gorm:"column:user_id"`
-	Price     int64     `json:"price" gorm:"column:price"`
-	Status    BidStatus `json:"status" gorm:"column:status"`
+	Description
 }
 
-func (BidModel) TableName() string {
+type Description struct {
+	AuctionID int64 `json:"auction_id" gorm:"column:auction_id"`
+	UserID    int64 `json:"user_id" gorm:"column:user_id"`
+	Price     int64 `json:"price" gorm:"column:price"`
+	// Status    BidStatus `json:"status" gorm:"column:status"`
+}
+
+func (Model) TableName() string {
 	return "bids"
 }
 
 func AutoMigrate(db *gorm.DB) {
-	db.AutoMigrate(&BidModel{})
+	db.AutoMigrate(&Model{})
 }

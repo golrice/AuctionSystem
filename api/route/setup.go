@@ -39,4 +39,6 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, rootRout
 	NewUserRoute(env, timeout, db, apiRoute.Group("/user"))
 	// 拍卖api
 	NewAuctionRoute(env, timeout, db, apiRoute.Group("/auction"))
+	// 出价api
+	NewBidRoute(env, timeout, db, apiRoute.Group("/bid"))
 }
