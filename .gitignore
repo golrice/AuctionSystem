@@ -1,7 +1,6 @@
 dev/
 tmp/
 uml/
-docs/
 locust/
 
 .env
