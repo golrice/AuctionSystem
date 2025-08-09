@@ -14,7 +14,7 @@ func (r *Repository) Create(ctx context.Context, model *Model) error {
 
 func (r *Repository) Get(ctx context.Context, model *Model) (*Model, error) {
 	var result *Model
-	if err := r.db.WithContext(ctx).Where(model).First(&result).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where(model).Take(&result).Error; err != nil {
 		return nil, errors.New("get user failed")
 	}
 

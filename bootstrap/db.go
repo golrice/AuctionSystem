@@ -1,12 +1,11 @@
 package bootstrap
 
 import (
-	"auctionsystem/internal/auction"
-	"auctionsystem/internal/bid"
 	"auctionsystem/internal/user"
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
@@ -36,9 +35,15 @@ func NewDb(cfg *Env) (*DB, error) {
 			return
 		}
 
+		sqlDB, err := db.DB()
+		if err != nil {
+			return
+		}
+		sqlDB.SetMaxOpenConns(50)
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetConnMaxLifetime(time.Minute * 5)
+
 		user.AutoMigrate(db)
-		auction.AutoMigrate(db)
-		bid.AutoMigrate(db)
 
 		redisClient = redis.NewClient(&redis.Options{
 			Addr:     fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),

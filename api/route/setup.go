@@ -4,14 +4,30 @@ import (
 	"auctionsystem/api/middleware"
 	"auctionsystem/bootstrap"
 	"auctionsystem/internal/user"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Setup(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, rootRoute *gin.Engine) {
-	rootRoute.Use(middleware.ErrorHandleMiddleware())
-	rootRoute.Use(gin.Logger())
+	ginMode := os.Getenv("GIN_MODE")
+	if ginMode == "" {
+		ginMode = gin.DebugMode
+	}
+	gin.SetMode(ginMode)
+
+	// swagger 设置
+	rootRoute.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	rootRoute.Use(gin.Recovery())
+
+	if gin.Mode() != gin.ReleaseMode {
+		rootRoute.Use(gin.Logger())
+	}
 	rootRoute.Use(middleware.CORSMiddleware())
 
 	// 公共路由
@@ -39,6 +55,4 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, rootRout
 	NewUserRoute(env, timeout, db, apiRoute.Group("/user"))
 	// 拍卖api
 	NewAuctionRoute(env, timeout, db, apiRoute.Group("/auction"))
-	// 出价api
-	NewBidRoute(env, timeout, db, apiRoute.Group("/bid"))
 }

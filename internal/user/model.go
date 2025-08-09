@@ -14,11 +14,11 @@ const (
 
 type Model struct {
 	gorm.Model
-	Name     string `json:"name" gorm:"column:name"`         // 用户名
-	Password string `json:"password" gorm:"column:password"` // 密码
+	Name     string `json:"name" gorm:"column:name;type:varchar(255);not null"`         // 用户名
+	Password string `json:"password" gorm:"column:password;type:varchar(255);not null"` // 密码
 
-	Email string `json:"email" gorm:"column:email"`            // 邮箱
-	Role  Role   `json:"role" gorm:"column:role;default:user"` // 角色 默认是user
+	Email string `json:"email" gorm:"column:email;type:varchar(255)"`            // 邮箱
+	Role  Role   `json:"role" gorm:"column:role;default:user;type:varchar(255)"` // 角色 默认是user
 
 	Balance int64 `json:"balance" gorm:"column:balance;default:0"` // 剩余额度
 }
