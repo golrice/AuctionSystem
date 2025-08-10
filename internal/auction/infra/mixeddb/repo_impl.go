@@ -4,14 +4,15 @@ import (
 	"auctionsystem/internal/auction/domain"
 	"auctionsystem/pkg/kernal"
 	"context"
+	"time"
 )
 
 type AuctionFullRepository struct {
 	cache   domain.AuctionCache
-	storage domain.AuctionRepository
+	storage domain.AuctionPersistency
 }
 
-func NewAuctionFullRepository(cache domain.AuctionCache, storage domain.AuctionRepository) domain.AuctionRepository {
+func NewAuctionFullRepository(cache domain.AuctionCache, storage domain.AuctionPersistency) domain.AuctionRepository {
 	return &AuctionFullRepository{
 		cache:   cache,
 		storage: storage,
@@ -51,8 +52,14 @@ func (a *AuctionFullRepository) UpdateAuction(ctx context.Context, auction *doma
 	if err := a.storage.UpdateAuction(ctx, auction); err != nil {
 		return err
 	}
-	// 再删除缓存
-	return a.cache.DeleteAuction(ctx, auction.ID)
+	// 再删除缓存 使用双删策略
+	if err := a.cache.DeleteAuction(ctx, auction.ID); err != nil {
+		return err
+	}
+	time.AfterFunc(500*time.Microsecond, func() {
+		a.cache.DeleteAuction(ctx, auction.ID)
+	})
+	return nil
 }
 
 func (a *AuctionFullRepository) DeleteAuction(ctx context.Context, id uint) error {
@@ -93,11 +100,23 @@ func (a *AuctionFullRepository) CreateBid(ctx context.Context, bid *domain.Bid) 
 	if err := a.storage.CreateBid(ctx, bid); err != nil {
 		return err
 	}
-	// 写入缓存中
-	if err := a.cache.CreateBid(ctx, bid); err != nil {
+	// 删除缓存
+	if err := a.cache.DeleteBid(ctx, bid.AuctionID); err != nil {
 		return err
 	}
+	// 双删缓存
+	time.AfterFunc(500*time.Microsecond, func() {
+		a.cache.DeleteBid(ctx, bid.AuctionID)
+	})
 	return nil
+}
+
+func (a *AuctionFullRepository) Lock(ctx context.Context, key string) error {
+	return a.cache.Lock(ctx, key)
+}
+
+func (a *AuctionFullRepository) Unlock(ctx context.Context, key string) error {
+	return a.cache.Unlock(ctx, key)
 }
 
 var _ domain.AuctionRepository = (*AuctionFullRepository)(nil)

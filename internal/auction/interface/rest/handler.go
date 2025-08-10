@@ -37,7 +37,7 @@ func NewAuctionHandler(auctionService application.AuctionService) *AuctionHandle
 func (h *AuctionHandler) CreateAuction(ctx *gin.Context) {
 	var req CreateAuctionRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, kernal.NewErrorResult(1, err.Error()))
+		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusBadRequest, err.Error()))
 		return
 	}
 	// 创建拍卖品
@@ -52,7 +52,7 @@ func (h *AuctionHandler) CreateAuction(ctx *gin.Context) {
 		Step:        req.StepPrice,
 	}
 	if err := h.auctionService.CreateAuction(&cmd); err != nil {
-		ctx.JSON(http.StatusInternalServerError, kernal.NewErrorResult(1, err.Error()))
+		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusInternalServerError, err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, kernal.NewDefaultSuccessResult())
@@ -72,7 +72,7 @@ func (h *AuctionHandler) CreateAuction(ctx *gin.Context) {
 func (h *AuctionHandler) ListLatestAuctions(ctx *gin.Context) {
 	var req ListAuctionRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, kernal.NewErrorResult(1, err.Error()))
+		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusBadRequest, err.Error()))
 		return
 	}
 	// 如果没有分页参数，使用默认分页
@@ -87,7 +87,7 @@ func (h *AuctionHandler) ListLatestAuctions(ctx *gin.Context) {
 		},
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, kernal.NewErrorResult(1, err.Error()))
+		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusInternalServerError, err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, auctions)
@@ -106,7 +106,7 @@ func (h *AuctionHandler) ListLatestAuctions(ctx *gin.Context) {
 func (h *AuctionHandler) CreateBid(ctx *gin.Context) {
 	var req CreateBidRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, kernal.NewErrorResult(1, err.Error()))
+		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusBadRequest, err.Error()))
 		return
 	}
 	// 创建出价
@@ -117,7 +117,7 @@ func (h *AuctionHandler) CreateBid(ctx *gin.Context) {
 		Price:     req.Price,
 	}
 	if err := h.auctionService.CreateBid(&cmd); err != nil {
-		ctx.JSON(http.StatusInternalServerError, kernal.NewErrorResult(1, err.Error()))
+		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusInternalServerError, err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, kernal.NewDefaultSuccessResult())
@@ -136,7 +136,7 @@ func (h *AuctionHandler) CreateBid(ctx *gin.Context) {
 func (h *AuctionHandler) GetHigestBid(ctx *gin.Context) {
 	var req GetHigestBidRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, kernal.NewErrorResult(1, err.Error()))
+		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusBadRequest, err.Error()))
 		return
 	}
 	// 获取最高出价
@@ -148,7 +148,7 @@ func (h *AuctionHandler) GetHigestBid(ctx *gin.Context) {
 		AuctionID: req.AuctionID,
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, kernal.NewErrorResult(1, err.Error()))
+		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusInternalServerError, err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, kernal.NewSuccessResult(bids[0]))

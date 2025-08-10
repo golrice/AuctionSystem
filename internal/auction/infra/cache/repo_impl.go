@@ -11,15 +11,15 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type AuctionRepositoryImpl struct {
+type AuctionCacheImpl struct {
 	cache *redis.Client
 }
 
 func NewAuctionCacheImpl(cache *redis.Client) domain.AuctionCache {
-	return &AuctionRepositoryImpl{cache: cache}
+	return &AuctionCacheImpl{cache: cache}
 }
 
-func (a *AuctionRepositoryImpl) CreateAuction(ctx context.Context, auction *domain.Auction) error {
+func (a *AuctionCacheImpl) CreateAuction(ctx context.Context, auction *domain.Auction) error {
 	data, err := json.Marshal(auction)
 	if err != nil {
 		return err
@@ -32,7 +32,7 @@ func (a *AuctionRepositoryImpl) CreateAuction(ctx context.Context, auction *doma
 	return nil
 }
 
-func (a *AuctionRepositoryImpl) FindAuctionByID(ctx context.Context, id uint) (*domain.Auction, error) {
+func (a *AuctionCacheImpl) FindAuctionByID(ctx context.Context, id uint) (*domain.Auction, error) {
 	data, err := a.cache.Get(ctx, fmt.Sprintf("auction:%d", id)).Bytes()
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (a *AuctionRepositoryImpl) FindAuctionByID(ctx context.Context, id uint) (*
 	return auction, nil
 }
 
-func (a *AuctionRepositoryImpl) UpdateAuction(ctx context.Context, auction *domain.Auction) error {
+func (a *AuctionCacheImpl) UpdateAuction(ctx context.Context, auction *domain.Auction) error {
 	data, err := json.Marshal(auction)
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func (a *AuctionRepositoryImpl) UpdateAuction(ctx context.Context, auction *doma
 	return nil
 }
 
-func (a *AuctionRepositoryImpl) DeleteAuction(ctx context.Context, id uint) error {
+func (a *AuctionCacheImpl) DeleteAuction(ctx context.Context, id uint) error {
 	cmd := a.cache.Del(ctx, fmt.Sprintf("auction:%d", id))
 	if cmd.Err() != nil {
 		return cmd.Err()
@@ -64,7 +64,7 @@ func (a *AuctionRepositoryImpl) DeleteAuction(ctx context.Context, id uint) erro
 	return nil
 }
 
-func (a *AuctionRepositoryImpl) LoadAuctionLatestBid(ctx context.Context, auction *domain.Auction) (*domain.Bid, error) {
+func (a *AuctionCacheImpl) LoadAuctionLatestBid(ctx context.Context, auction *domain.Auction) (*domain.Bid, error) {
 	cmd, err := a.cache.Get(ctx, fmt.Sprintf("auction:%d:bid", auction.ID)).Bytes()
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (a *AuctionRepositoryImpl) LoadAuctionLatestBid(ctx context.Context, auctio
 	return bid, nil
 }
 
-func (a *AuctionRepositoryImpl) CreateBid(ctx context.Context, bid *domain.Bid) error {
+func (a *AuctionCacheImpl) CreateBid(ctx context.Context, bid *domain.Bid) error {
 	data, err := json.Marshal(bid)
 	if err != nil {
 		return err
@@ -88,4 +88,20 @@ func (a *AuctionRepositoryImpl) CreateBid(ctx context.Context, bid *domain.Bid) 
 	return nil
 }
 
-var _ domain.AuctionCache = (*AuctionRepositoryImpl)(nil)
+func (a *AuctionCacheImpl) DeleteBid(ctx context.Context, auctionID uint) error {
+	cmd := a.cache.Del(ctx, fmt.Sprintf("auction:%d:bid", auctionID))
+	if cmd.Err() != nil {
+		return cmd.Err()
+	}
+	return nil
+}
+
+func (a *AuctionCacheImpl) Lock(ctx context.Context, key string) error {
+	return a.cache.SetNX(ctx, key, "1", config.RedisLockTTL*time.Second).Err()
+}
+
+func (a *AuctionCacheImpl) Unlock(ctx context.Context, key string) error {
+	return a.cache.Del(ctx, key).Err()
+}
+
+var _ domain.AuctionCache = (*AuctionCacheImpl)(nil)

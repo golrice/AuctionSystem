@@ -6,6 +6,7 @@ import (
 	"auctionsystem/internal/auction/shared"
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -125,6 +126,12 @@ func (s *AuctionService) EndAuction(cmd *EndAuctionCommand) error {
 func (s *AuctionService) CreateBid(cmd *CreateBidCommand) error {
 	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
 	defer cancel()
+
+	lockKey := fmt.Sprintf("auction:%d:lock", cmd.AuctionID)
+	if err := s.auctionRepo.Lock(ctx, lockKey); err != nil {
+		return err
+	}
+
 	auction, err := s.auctionRepo.FindAuctionByID(ctx, cmd.AuctionID)
 	if err != nil {
 		return err
@@ -141,6 +148,10 @@ func (s *AuctionService) CreateBid(cmd *CreateBidCommand) error {
 		return err
 	}
 	if err := s.auctionRepo.CreateBid(ctx, bid); err != nil {
+		return err
+	}
+
+	if err := s.auctionRepo.Unlock(ctx, lockKey); err != nil {
 		return err
 	}
 

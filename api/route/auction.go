@@ -15,8 +15,9 @@ import (
 
 func NewAuctionRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, group *gin.RouterGroup) {
 	cache := cache.NewAuctionCacheImpl(db.Redis)
-	persRepo := persistence.NewAuctionRepositoryImpl(db.Db)
+	persRepo := persistence.NewAuctionPersistencyImpl(db.Db)
 	auctionService := application.NewAuctionService(mixeddb.NewAuctionFullRepository(cache, persRepo), timeout, mq.NewRedisRepository(db.Redis))
+
 	auctionController := rest.NewAuctionHandler(*auctionService)
 
 	group.POST("", auctionController.CreateAuction)
