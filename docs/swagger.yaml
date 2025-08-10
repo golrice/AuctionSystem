@@ -1,4 +1,412 @@
+basePath: /
+definitions:
+  application.AuctionBriefDTO:
+    properties:
+      end_time:
+        type: integer
+      id:
+        type: integer
+      init_price:
+        type: integer
+      start_time:
+        type: integer
+      status:
+        $ref: '#/definitions/shared.AuctionStatus'
+      title:
+        type: string
+    type: object
+  application.BidBriefDTO:
+    properties:
+      id:
+        type: integer
+      price:
+        type: integer
+    type: object
+  auth.LoginRequestSchema:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  auth.LoginResponseSchema:
+    properties:
+      access_token:
+        type: string
+      access_token_expire_time:
+        type: string
+      access_token_type:
+        type: string
+      code:
+        type: integer
+      msg:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expire_time:
+        type: string
+      refresh_token_type:
+        type: string
+    type: object
+  auth.RefreshTokenRequestSchema:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  auth.RefreshTokenResponseSchema:
+    properties:
+      access_token:
+        type: string
+      access_token_expire_time:
+        type: string
+      access_token_type:
+        type: string
+      code:
+        type: integer
+      msg:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expire_time:
+        type: string
+      refresh_token_type:
+        type: string
+    type: object
+  auth.SignupRequestSchema:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  auth.SignupResponseSchema:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+    type: object
+  kernal.ErrorResult:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+    type: object
+  kernal.SuccessResult:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+  rest.CreateAuctionRequest:
+    properties:
+      description:
+        type: string
+      end_time:
+        type: integer
+      init_price:
+        type: integer
+      start_time:
+        type: integer
+      step_price:
+        type: integer
+      title:
+        type: string
+    type: object
+  rest.CreateBidRequest:
+    properties:
+      auction_id:
+        type: integer
+      price:
+        type: integer
+    type: object
+  rest.GetHigestBidRequest:
+    properties:
+      auction_id:
+        type: integer
+    required:
+    - auction_id
+    type: object
+  shared.AuctionStatus:
+    enum:
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - AuctionStatusRunning
+    - AuctionStatusEnded
+    - AuctionStatusWaiting
+host: localhost:8080
 info:
-  contact: {}
-paths: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Auction System API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Auction System API
+  version: "1.0"
+paths:
+  /api/auction:
+    post:
+      consumes:
+      - application/json
+      description: 创建拍卖品
+      parameters:
+      - description: 创建拍卖品请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/rest.CreateAuctionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/kernal.SuccessResult'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 创建拍卖品
+      tags:
+      - 拍卖品
+  /api/auction/bid:
+    post:
+      consumes:
+      - application/json
+      description: 创建出价
+      parameters:
+      - description: 创建出价请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/rest.CreateBidRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/kernal.SuccessResult'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 创建出价
+      tags:
+      - 出价
+  /api/auction/bid/higest:
+    get:
+      consumes:
+      - application/json
+      description: 获取拍卖品的最高出价
+      parameters:
+      - description: 获取拍卖品的最高出价请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/rest.GetHigestBidRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/kernal.SuccessResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/application.BidBriefDTO'
+                  type: array
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 获取拍卖品的最高出价
+      tags:
+      - 出价
+  /api/auction/latest:
+    get:
+      consumes:
+      - application/json
+      description: 获取最新的拍卖品
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/kernal.SuccessResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/application.AuctionBriefDTO'
+                  type: array
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 获取最新的拍卖品
+      tags:
+      - 拍卖品
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 登录获取访问令牌和刷新令牌
+      parameters:
+      - description: 登录请求体
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequestSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponseSchema'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 登录
+      tags:
+      - Auth
+  /auth/refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: 使用刷新令牌刷新访问令牌
+      parameters:
+      - description: 刷新令牌请求体
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RefreshTokenRequestSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/kernal.SuccessResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.RefreshTokenResponseSchema'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: Refresh token
+      tags:
+      - Auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: 注册新用户
+      parameters:
+      - description: 注册请求体
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignupRequestSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.SignupResponseSchema'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 注册
+      tags:
+      - Auth
+  /ws:
+    get:
+      consumes:
+      - application/json
+      description: 处理ws连接
+      parameters:
+      - description: 拍卖id
+        in: query
+        name: auction_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 处理ws连接
+      tags:
+      - ws
 swagger: "2.0"
