@@ -1,6 +1,7 @@
 package route
 
 import (
+	"auctionsystem/api/route/ws/infra/mq"
 	"auctionsystem/bootstrap"
 	"auctionsystem/internal/auction/application"
 	"auctionsystem/internal/auction/infra/persistence"
@@ -11,7 +12,7 @@ import (
 )
 
 func NewAuctionRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, group *gin.RouterGroup) {
-	auctionService := application.NewAuctionService(persistence.NewAuctionRepositoryImpl(db.Db), timeout)
+	auctionService := application.NewAuctionService(persistence.NewAuctionRepositoryImpl(db.Db), timeout, mq.NewRedisRepository(db.Redis))
 	auctionController := rest.NewAuctionHandler(*auctionService)
 
 	group.POST("", auctionController.CreateAuction)

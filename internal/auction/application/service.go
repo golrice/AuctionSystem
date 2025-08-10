@@ -1,7 +1,8 @@
 package application
 
 import (
-	"auctionsystem/internal/auction/domain"
+	wsDomain "auctionsystem/api/route/ws/domain"
+	auctionDomain "auctionsystem/internal/auction/domain"
 	"auctionsystem/internal/auction/shared"
 	"auctionsystem/pkg/kernal"
 	"context"
@@ -10,14 +11,18 @@ import (
 )
 
 type AuctionService struct {
-	auctionRepo    domain.AuctionRepository
+	auctionRepo    auctionDomain.AuctionRepository
 	contextTimeout time.Duration
+
+	publishQ wsDomain.AuctionMessageRepository
 }
 
-func NewAuctionService(auctionRepo domain.AuctionRepository, contextTimeout time.Duration) *AuctionService {
+func NewAuctionService(auctionRepo auctionDomain.AuctionRepository, contextTimeout time.Duration, q wsDomain.AuctionMessageRepository) *AuctionService {
 	return &AuctionService{
 		auctionRepo:    auctionRepo,
 		contextTimeout: contextTimeout,
+
+		publishQ: q,
 	}
 }
 
@@ -34,7 +39,7 @@ func (s *AuctionService) CreateAuction(cmd *CreateAuctionCommand) error {
 	if cmd.StartTime < time.Now().Unix() {
 		return errors.New("start time is in the past")
 	}
-	auction := &domain.Auction{
+	auction := &auctionDomain.Auction{
 		UserID:      cmd.UserID,
 		Title:       cmd.Title,
 		Description: cmd.Description,
@@ -138,7 +143,17 @@ func (s *AuctionService) CreateBid(cmd *CreateBidCommand) error {
 	if err != nil {
 		return err
 	}
-	return s.auctionRepo.CreateBid(ctx, bid)
+	if err := s.auctionRepo.CreateBid(ctx, bid); err != nil {
+		return err
+	}
+
+	return s.publishQ.Publish(ctx, wsDomain.AuctionMessage{
+		AuctionID: cmd.AuctionID,
+		BidInfo: wsDomain.BidInfo{
+			Price:     int(cmd.Price),
+			Timestamp: uint(time.Now().Unix()),
+		},
+	})
 }
 
 // 查看最近出价
@@ -151,6 +166,12 @@ func (s *AuctionService) ListLatestBids(query *ListLatestBidsQuery) ([]*BidBrief
 	auction, err := s.auctionRepo.FindAuctionByID(ctx, query.AuctionID)
 	if err != nil {
 		return nil, err
+	}
+	if query.Page == 0 {
+		query.Page = 1
+	}
+	if query.Size == 0 {
+		query.Size = 10
 	}
 	if err := s.auctionRepo.LoadAuctionLatestBids(ctx, auction, query.Pagination); err != nil {
 		return nil, errors.New("load auction latest bids failed")

@@ -292,6 +292,44 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/ws": {
+            "get": {
+                "description": "处理ws连接",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ws"
+                ],
+                "summary": "处理ws连接",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "拍卖id",
+                        "name": "auction_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/kernal.ErrorResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/kernal.ErrorResult"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

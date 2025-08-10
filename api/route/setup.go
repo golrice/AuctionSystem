@@ -46,6 +46,9 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, rootRout
 	authRoute.Use(middleware.RequireRole(user.RoleAdmin, user.RoleUser))
 	NewRefreshTokenRoute(env, timeout, db, authRoute)
 
+	// ws路由
+	NewWSRoute(env, timeout, db, rootRoute.Group("/ws"))
+
 	// api路由
 	apiRoute := rootRoute.Group("/api")
 	apiRoute.Use(middleware.JWTMiddleware(env))

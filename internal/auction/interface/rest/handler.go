@@ -41,7 +41,7 @@ func (h *AuctionHandler) CreateAuction(ctx *gin.Context) {
 		return
 	}
 	// 创建拍卖品
-	userID := ctx.Value("userID").(uint)
+	userID := ctx.Value("user_id").(uint)
 	cmd := application.CreateAuctionCommand{
 		UserID:      userID,
 		Title:       req.Title,
@@ -110,7 +110,7 @@ func (h *AuctionHandler) CreateBid(ctx *gin.Context) {
 		return
 	}
 	// 创建出价
-	userID := ctx.Value("userID").(uint)
+	userID := ctx.Value("user_id").(uint)
 	cmd := application.CreateBidCommand{
 		AuctionID: req.AuctionID,
 		UserID:    userID,
