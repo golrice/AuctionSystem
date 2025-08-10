@@ -4,7 +4,6 @@ import (
 	wsDomain "auctionsystem/api/route/ws/domain"
 	auctionDomain "auctionsystem/internal/auction/domain"
 	"auctionsystem/internal/auction/shared"
-	"auctionsystem/pkg/kernal"
 	"context"
 	"errors"
 	"time"
@@ -133,13 +132,11 @@ func (s *AuctionService) CreateBid(cmd *CreateBidCommand) error {
 	if auction.Status != shared.AuctionStatusRunning {
 		return errors.New("auction is not running")
 	}
-	if err := s.auctionRepo.LoadAuctionLatestBids(ctx, auction, kernal.Pagination{
-		Page: 1,
-		Size: 1,
-	}); err != nil {
+	highestBid, err := s.auctionRepo.LoadAuctionLatestBid(ctx, auction)
+	if err != nil {
 		return errors.New("load auction latest bids failed")
 	}
-	bid, err := auction.CreateBid(cmd.UserID, cmd.Price)
+	bid, err := auction.CreateValidBid(cmd.UserID, cmd.Price, highestBid)
 	if err != nil {
 		return err
 	}
@@ -173,9 +170,10 @@ func (s *AuctionService) ListLatestBids(query *ListLatestBidsQuery) ([]*BidBrief
 	if query.Size == 0 {
 		query.Size = 10
 	}
-	if err := s.auctionRepo.LoadAuctionLatestBids(ctx, auction, query.Pagination); err != nil {
+	auctionBids, err := s.auctionRepo.LoadAuctionLatestBids(ctx, auction, query.Pagination)
+	if err != nil {
 		return nil, errors.New("load auction latest bids failed")
 	}
-	bids := convertToBriefBidDTOs(auction.Bids)
+	bids := convertToBriefBidDTOs(auctionBids)
 	return bids, nil
 }

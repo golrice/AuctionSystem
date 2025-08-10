@@ -16,8 +16,6 @@ type Auction struct {
 	InitPrice   int64
 	Step        int64
 	Status      shared.AuctionStatus
-
-	Bids []*Bid
 }
 
 type Bid struct {
@@ -28,24 +26,27 @@ type Bid struct {
 	Price     int64
 }
 
-func (a *Auction) CreateBid(userID uint, price int64) (*Bid, error) {
-	// 合法化检查
-	if len(a.Bids) == 0 && price <= a.InitPrice+a.Step {
-		return nil, errors.New("price is less than (current price + smallest step)")
-	}
-	if price <= a.Bids[len(a.Bids)-1].Price+a.Step {
-		return nil, errors.New("price is less than (current price + smallest step)")
-	}
+func (a *Auction) IsStarting() bool {
+	return a.Status == shared.AuctionStatusRunning
+}
 
-	bid := &Bid{
+func (a *Auction) CreateValidBid(userID uint, price int64, highestBid *Bid) (*Bid, error) {
+	if highestBid == nil {
+		if price <= a.InitPrice+a.Step {
+			return nil, errors.New("price is less than init price + step")
+		}
+		return &Bid{
+			AuctionID: a.ID,
+			UserID:    userID,
+			Price:     price,
+		}, nil
+	}
+	if price <= highestBid.Price+a.Step {
+		return nil, errors.New("price is less than highest bid price + step")
+	}
+	return &Bid{
 		AuctionID: a.ID,
 		UserID:    userID,
 		Price:     price,
-	}
-	a.Bids = append(a.Bids, bid)
-	return bid, nil
-}
-
-func (a *Auction) IsStarting() bool {
-	return a.Status == shared.AuctionStatusRunning
+	}, nil
 }

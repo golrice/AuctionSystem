@@ -1,4 +1,4 @@
-package persistence
+package adaptor
 
 import (
 	"auctionsystem/internal/auction/shared"

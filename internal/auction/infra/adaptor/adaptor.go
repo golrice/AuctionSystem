@@ -1,10 +1,10 @@
-package persistence
+package adaptor
 
 import (
 	"auctionsystem/internal/auction/domain"
 )
 
-func convertToDomainAuction(auction *AuctionModel) *domain.Auction {
+func ConvertToDomainAuction(auction *AuctionModel) *domain.Auction {
 	return &domain.Auction{
 		ID: auction.ID,
 
@@ -16,12 +16,10 @@ func convertToDomainAuction(auction *AuctionModel) *domain.Auction {
 		InitPrice:   auction.InitPrice,
 		Step:        auction.Step,
 		Status:      auction.Status,
-
-		Bids: []*domain.Bid{},
 	}
 }
 
-func convertToAuctionModel(auction *domain.Auction) *AuctionModel {
+func ConvertToAuctionModel(auction *domain.Auction) *AuctionModel {
 	return &AuctionModel{
 		UserID:      auction.UserID,
 		Title:       auction.Title,
@@ -34,15 +32,15 @@ func convertToAuctionModel(auction *domain.Auction) *AuctionModel {
 	}
 }
 
-func convertToDomainAuctions(auctions []*AuctionModel) []*domain.Auction {
+func ConvertToDomainAuctions(auctions []*AuctionModel) []*domain.Auction {
 	var domainAuctions []*domain.Auction
 	for _, auction := range auctions {
-		domainAuctions = append(domainAuctions, convertToDomainAuction(auction))
+		domainAuctions = append(domainAuctions, ConvertToDomainAuction(auction))
 	}
 	return domainAuctions
 }
 
-func convertToDomainBid(bid *BidModel) *domain.Bid {
+func ConvertToDomainBid(bid *BidModel) *domain.Bid {
 	return &domain.Bid{
 		ID: bid.ID,
 
@@ -52,7 +50,7 @@ func convertToDomainBid(bid *BidModel) *domain.Bid {
 	}
 }
 
-func convertToBidModel(bid *domain.Bid) *BidModel {
+func ConvertToBidModel(bid *domain.Bid) *BidModel {
 	return &BidModel{
 		UserID:    bid.UserID,
 		AuctionID: bid.AuctionID,
@@ -60,10 +58,10 @@ func convertToBidModel(bid *domain.Bid) *BidModel {
 	}
 }
 
-func convertToDomainBids(bids *[]BidModel) []*domain.Bid {
+func ConvertToDomainBids(bids *[]BidModel) []*domain.Bid {
 	var domainBids []*domain.Bid
 	for _, bid := range *bids {
-		domainBids = append(domainBids, convertToDomainBid(&bid))
+		domainBids = append(domainBids, ConvertToDomainBid(&bid))
 	}
 	return domainBids
 }

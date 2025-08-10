@@ -6,4 +6,6 @@ const (
 	WSReadDeadline    = 120
 	WSWriteDeadline   = 10
 	WSWriteTick       = 10
+
+	RedisTTL = 60 * 60
 )

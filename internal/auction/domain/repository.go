@@ -11,7 +11,18 @@ type AuctionRepository interface {
 	FindAuctions(ctx context.Context, page kernal.Pagination) ([]*Auction, error)
 	UpdateAuction(ctx context.Context, auction *Auction) error
 	DeleteAuction(ctx context.Context, id uint) error
-	LoadAuctionLatestBids(ctx context.Context, auction *Auction, page kernal.Pagination) error
+	LoadAuctionLatestBids(ctx context.Context, auction *Auction, page kernal.Pagination) ([]*Bid, error)
+	LoadAuctionLatestBid(ctx context.Context, auction *Auction) (*Bid, error)
+
+	CreateBid(ctx context.Context, bid *Bid) error
+}
+
+type AuctionCache interface {
+	CreateAuction(ctx context.Context, auction *Auction) error
+	FindAuctionByID(ctx context.Context, id uint) (*Auction, error)
+	UpdateAuction(ctx context.Context, auction *Auction) error
+	DeleteAuction(ctx context.Context, id uint) error
+	LoadAuctionLatestBid(ctx context.Context, auction *Auction) (*Bid, error)
 
 	CreateBid(ctx context.Context, bid *Bid) error
 }

@@ -22,6 +22,35 @@ definitions:
       price:
         type: integer
     type: object
+  auth.LoginRequestSchema:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  auth.LoginResponseSchema:
+    properties:
+      access_token:
+        type: string
+      access_token_expire_time:
+        type: string
+      access_token_type:
+        type: string
+      code:
+        type: integer
+      msg:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expire_time:
+        type: string
+      refresh_token_type:
+        type: string
+    type: object
   auth.RefreshTokenRequestSchema:
     properties:
       refresh_token:
@@ -46,6 +75,26 @@ definitions:
       refresh_token_expire_time:
         type: string
       refresh_token_type:
+        type: string
+    type: object
+  auth.SignupRequestSchema:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  auth.SignupResponseSchema:
+    properties:
+      code:
+        type: integer
+      msg:
         type: string
     type: object
   kernal.ErrorResult:
@@ -252,6 +301,32 @@ paths:
       summary: 获取最新的拍卖品
       tags:
       - 拍卖品
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 登录获取访问令牌和刷新令牌
+      parameters:
+      - description: 登录请求体
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequestSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponseSchema'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 登录
+      tags:
+      - Auth
   /auth/refresh_token:
     post:
       consumes:
@@ -281,6 +356,32 @@ paths:
           schema:
             $ref: '#/definitions/kernal.ErrorResult'
       summary: Refresh token
+      tags:
+      - Auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: 注册新用户
+      parameters:
+      - description: 注册请求体
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignupRequestSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.SignupResponseSchema'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/kernal.ErrorResult'
+      summary: 注册
       tags:
       - Auth
   /ws:

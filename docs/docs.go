@@ -241,6 +241,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/login": {
+            "post": {
+                "description": "登录获取访问令牌和刷新令牌",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "登录",
+                "parameters": [
+                    {
+                        "description": "登录请求体",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginRequestSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginResponseSchema"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/kernal.ErrorResult"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/refresh_token": {
             "post": {
                 "description": "使用刷新令牌刷新访问令牌",
@@ -282,6 +322,46 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/kernal.ErrorResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signup": {
+            "post": {
+                "description": "注册新用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "注册",
+                "parameters": [
+                    {
+                        "description": "注册请求体",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.SignupRequestSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.SignupResponseSchema"
                         }
                     },
                     "400": {
@@ -367,6 +447,50 @@ const docTemplate = `{
                 }
             }
         },
+        "auth.LoginRequestSchema": {
+            "type": "object",
+            "required": [
+                "name",
+                "password"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.LoginResponseSchema": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "access_token_expire_time": {
+                    "type": "string"
+                },
+                "access_token_type": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "refresh_token_expire_time": {
+                    "type": "string"
+                },
+                "refresh_token_type": {
+                    "type": "string"
+                }
+            }
+        },
         "auth.RefreshTokenRequestSchema": {
             "type": "object",
             "required": [
@@ -403,6 +527,36 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "refresh_token_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.SignupRequestSchema": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.SignupResponseSchema": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
                     "type": "string"
                 }
             }
