@@ -14,3 +14,7 @@ type ListLatestBidsQuery struct {
 	kernal.Pagination
 	AuctionID uint
 }
+
+type GetHighestBidQuery struct {
+	AuctionID uint
+}

@@ -128,28 +128,24 @@ func (h *AuctionHandler) CreateBid(ctx *gin.Context) {
 // @Tags 出价
 // @Accept json
 // @Produce json
-// @Param req body GetHigestBidRequest true "获取拍卖品的最高出价请求参数"
-// @Success 200 {object} kernal.SuccessResult{data=application.BidBriefListDTO} "获取成功"
+// @Param req query GetHighestBidRequest true "获取拍卖品的最高出价请求参数"
+// @Success 200 {object} kernal.SuccessResult{data=application.BidBriefDTO} "获取成功"
 // @Failure 400 {object} kernal.ErrorResult "请求参数错误"
 // @Failure 500 {object} kernal.ErrorResult "服务器内部错误"
-// @Router /api/auction/bid/higest [get]
-func (h *AuctionHandler) GetHigestBid(ctx *gin.Context) {
-	var req GetHigestBidRequest
+// @Router /api/auction/bid/highest [get]
+func (h *AuctionHandler) GetHighestBid(ctx *gin.Context) {
+	var req GetHighestBidRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusBadRequest, err.Error()))
 		return
 	}
 	// 获取最高出价
-	bids, err := h.auctionService.ListLatestBids(&application.ListLatestBidsQuery{
-		Pagination: kernal.Pagination{
-			Page: 1,
-			Size: 1,
-		},
+	bid, err := h.auctionService.GetHighestBid(&application.GetHighestBidQuery{
 		AuctionID: req.AuctionID,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusOK, kernal.NewErrorResult(http.StatusInternalServerError, err.Error()))
 		return
 	}
-	ctx.JSON(http.StatusOK, kernal.NewSuccessResult(bids[0]))
+	ctx.JSON(http.StatusOK, kernal.NewSuccessResult(bid))
 }

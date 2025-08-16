@@ -23,5 +23,5 @@ func NewAuctionRoute(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB
 	group.POST("", auctionController.CreateAuction)
 	group.GET("/latest", auctionController.ListLatestAuctions)
 	group.POST("/bid", auctionController.CreateBid)
-	group.GET("/bid/higest", auctionController.GetHigestBid)
+	group.GET("/bid/highest", auctionController.GetHighestBid)
 }

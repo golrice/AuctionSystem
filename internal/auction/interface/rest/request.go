@@ -42,7 +42,7 @@ type CreateBidRequest struct {
 	Price     int64 `json:"price"`
 }
 
-type GetHigestBidRequest struct {
+type GetHighestBidRequest struct {
 	AuctionID uint `form:"auction_id" json:"auction_id" validate:"required"`
 }
 

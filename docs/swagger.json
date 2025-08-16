@@ -1,22 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Auction System API",
-        "title": "Auction System API",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/",
     "paths": {
         "/api/auction": {
             "post": {
@@ -110,7 +96,7 @@
                 }
             }
         },
-        "/api/auction/bid/higest": {
+        "/api/auction/bid/highest": {
             "get": {
                 "description": "获取拍卖品的最高出价",
                 "consumes": [
@@ -125,13 +111,10 @@
                 "summary": "获取拍卖品的最高出价",
                 "parameters": [
                     {
-                        "description": "获取拍卖品的最高出价请求参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/rest.GetHigestBidRequest"
-                        }
+                        "type": "integer",
+                        "name": "auction_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -146,10 +129,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/application.BidBriefDTO"
-                                            }
+                                            "$ref": "#/definitions/application.BidBriefDTO"
                                         }
                                     }
                                 }
@@ -608,17 +588,6 @@
                     "type": "integer"
                 },
                 "price": {
-                    "type": "integer"
-                }
-            }
-        },
-        "rest.GetHigestBidRequest": {
-            "type": "object",
-            "required": [
-                "auction_id"
-            ],
-            "properties": {
-                "auction_id": {
                     "type": "integer"
                 }
             }

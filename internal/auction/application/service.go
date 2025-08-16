@@ -188,3 +188,21 @@ func (s *AuctionService) ListLatestBids(query *ListLatestBidsQuery) ([]*BidBrief
 	bids := convertToBriefBidDTOs(auctionBids)
 	return bids, nil
 }
+
+// 查看最高出价
+// params:
+// query: 查看最高出价的查询参数 包括了拍卖品的ID
+// return: 最高出价的信息 和 错误信息
+func (s *AuctionService) GetHighestBid(query *GetHighestBidQuery) (*BidBriefDTO, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
+	defer cancel()
+	auction, err := s.auctionRepo.FindAuctionByID(ctx, query.AuctionID)
+	if err != nil {
+		return nil, err
+	}
+	highestBid, err := s.auctionRepo.LoadAuctionLatestBid(ctx, auction)
+	if err != nil {
+		return nil, errors.New("load auction latest bids failed")
+	}
+	return convertToBriefBidDTO(highestBid), nil
+}

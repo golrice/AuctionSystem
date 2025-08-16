@@ -101,13 +101,16 @@ func (a *AuctionFullRepository) CreateBid(ctx context.Context, bid *domain.Bid) 
 		return err
 	}
 	// 删除缓存
-	if err := a.cache.DeleteBid(ctx, bid.AuctionID); err != nil {
+	// if err := a.cache.DeleteBid(ctx, bid.AuctionID); err != nil {
+	// 	return err
+	// }
+	// 双删缓存
+	// time.AfterFunc(500*time.Microsecond, func() {
+	// 	a.cache.DeleteBid(ctx, bid.AuctionID)
+	// })
+	if err := a.cache.CreateBid(ctx, bid); err != nil {
 		return err
 	}
-	// 双删缓存
-	time.AfterFunc(500*time.Microsecond, func() {
-		a.cache.DeleteBid(ctx, bid.AuctionID)
-	})
 	return nil
 }
 

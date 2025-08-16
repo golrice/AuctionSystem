@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   application.AuctionBriefDTO:
     properties:
@@ -134,13 +133,6 @@ definitions:
       price:
         type: integer
     type: object
-  rest.GetHigestBidRequest:
-    properties:
-      auction_id:
-        type: integer
-    required:
-    - auction_id
-    type: object
   shared.AuctionStatus:
     enum:
     - 1
@@ -151,19 +143,8 @@ definitions:
     - AuctionStatusRunning
     - AuctionStatusEnded
     - AuctionStatusWaiting
-host: localhost:8080
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: Auction System API
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Auction System API
-  version: "1.0"
+  contact: {}
 paths:
   /api/auction:
     post:
@@ -225,18 +206,16 @@ paths:
       summary: 创建出价
       tags:
       - 出价
-  /api/auction/bid/higest:
+  /api/auction/bid/highest:
     get:
       consumes:
       - application/json
       description: 获取拍卖品的最高出价
       parameters:
-      - description: 获取拍卖品的最高出价请求参数
-        in: body
-        name: req
+      - in: query
+        name: auction_id
         required: true
-        schema:
-          $ref: '#/definitions/rest.GetHigestBidRequest'
+        type: integer
       produces:
       - application/json
       responses:
@@ -247,9 +226,7 @@ paths:
             - $ref: '#/definitions/kernal.SuccessResult'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/application.BidBriefDTO'
-                  type: array
+                  $ref: '#/definitions/application.BidBriefDTO'
               type: object
         "400":
           description: 请求参数错误

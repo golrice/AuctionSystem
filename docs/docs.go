@@ -9,16 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -116,7 +107,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auction/bid/higest": {
+        "/api/auction/bid/highest": {
             "get": {
                 "description": "获取拍卖品的最高出价",
                 "consumes": [
@@ -131,13 +122,10 @@ const docTemplate = `{
                 "summary": "获取拍卖品的最高出价",
                 "parameters": [
                     {
-                        "description": "获取拍卖品的最高出价请求参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/rest.GetHigestBidRequest"
-                        }
+                        "type": "integer",
+                        "name": "auction_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -152,10 +140,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/application.BidBriefDTO"
-                                            }
+                                            "$ref": "#/definitions/application.BidBriefDTO"
                                         }
                                     }
                                 }
@@ -618,17 +603,6 @@ const docTemplate = `{
                 }
             }
         },
-        "rest.GetHigestBidRequest": {
-            "type": "object",
-            "required": [
-                "auction_id"
-            ],
-            "properties": {
-                "auction_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "shared.AuctionStatus": {
             "type": "integer",
             "enum": [
@@ -647,12 +621,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Auction System API",
-	Description:      "Auction System API",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

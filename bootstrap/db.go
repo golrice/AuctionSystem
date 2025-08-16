@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"auctionsystem/internal/user"
+	localLogger "auctionsystem/pkg/logger"
 	"context"
 	"fmt"
 	"sync"
@@ -10,6 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 type DB struct {
@@ -30,7 +32,9 @@ func NewDb(cfg *Env) (*DB, error) {
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			cfg.DBUser, cfg.DBPass, cfg.DBHost, cfg.DBPort, cfg.DBName)
 
-		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			Logger: localLogger.NewFileLogger("gorm.log", time.Second, gormLogger.Warn),
+		})
 		if err != nil {
 			return
 		}
@@ -39,9 +43,9 @@ func NewDb(cfg *Env) (*DB, error) {
 		if err != nil {
 			return
 		}
-		sqlDB.SetMaxOpenConns(50)
-		sqlDB.SetMaxIdleConns(10)
-		sqlDB.SetConnMaxLifetime(time.Minute * 5)
+		sqlDB.SetMaxOpenConns(100)
+		sqlDB.SetMaxIdleConns(50)
+		sqlDB.SetConnMaxLifetime(time.Hour)
 
 		user.AutoMigrate(db)
 

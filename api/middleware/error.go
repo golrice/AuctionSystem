@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"auctionsystem/pkg/kernal"
-	"log"
+	"auctionsystem/pkg/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +12,7 @@ func ErrorHandleMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Printf("Panic: %v", err)
+				logger.Logger.Printf("Panic: %v", err)
 				ctx.JSON(http.StatusInternalServerError, kernal.NewErrorResult(http.StatusInternalServerError, "Internal server error"))
 			}
 		}()

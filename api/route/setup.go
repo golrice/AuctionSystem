@@ -26,7 +26,7 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, rootRout
 	rootRoute.Use(gin.Recovery())
 
 	if gin.Mode() != gin.ReleaseMode {
-		rootRoute.Use(gin.Logger())
+		rootRoute.Use(middleware.LoggerMiddleware())
 	}
 	rootRoute.Use(middleware.CORSMiddleware())
 
@@ -47,7 +47,9 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *bootstrap.DB, rootRout
 	NewRefreshTokenRoute(env, timeout, db, authRoute)
 
 	// ws路由
-	NewWSRoute(env, timeout, db, rootRoute.Group("/ws"))
+	wsRoute := rootRoute.Group("/ws")
+	wsRoute.Use(middleware.JWTMiddleware(env))
+	NewWSRoute(env, timeout, db, wsRoute)
 
 	// api路由
 	apiRoute := rootRoute.Group("/api")

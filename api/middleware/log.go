@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"log"
+	"auctionsystem/pkg/logger"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,8 @@ func LoggerMiddleware() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 		method := c.Request.Method
 
-		log.Printf("[%s] %s %s %d %v",
+		// 高亮显示
+		logger.Logger.Printf("[%s] %s %s %d %v",
 			clientIP, method, path, status, latency)
 	}
 }
